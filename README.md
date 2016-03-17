@@ -1,4 +1,4 @@
-# Microsoft Graph Excel REST API ASP.NET MVC sample
+# Microsoft Graph’s Excel REST API ASP.NET MVC sample
 
 This sample shows how to  read and write into an Excel document stored in your OneDrive Business account by using the Excel REST APIs.
 
