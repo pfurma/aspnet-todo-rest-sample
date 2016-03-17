@@ -24,14 +24,25 @@ To use the Microsoft Graph Excel REST API ASP.NET MVC sample, you need the follo
 
      > Note: During the app registration process, make sure to specify **http://localhost:21942** as the **Sign-on URL**.  
 
-## Configure and run the app
+## Configure the app
 1. Open **Microsoft-Graph-ExcelRest-ToDo.sln** file. 
 2. In Solution Explorer, open the **Web.config** file. 
 3. Replace *ENTER_YOUR_CLIENT_ID* with the client ID of your registered Azure application.
 4. Replace *ENTER_YOUR_SECRET* with the key of your registered Azure application.
-3. Press F5 to build and debug. Run the solution and sign in with your organizational account.
 
+## Run the app
+
+1. Press F5 to build and debug. Run the solution and sign in with your organizational account. The application launches on your local host and shows the starter page. 
+![](images/ExcelApp.JPG)
      > Note: Copy and paste the start page URL address **http://localhost:21942/home/index**, to a different browser if you get the following error during sign in:**AADSTS70001: Application with identifier ad533dcf-ccad-469a-abed-acd1c8cc0d7d was not found in the directory**.
+2. Select the `ToDoList` link from the top menu bar.
+3. The application uploads the `ToDoList.xlsx` workbook and displays the task list page. Since there are no tasks added yet, you will see an empty list. Select the `Add New' link to add a new task. Fill out the form with the task details.
+4. After you add a task, the app shows the updated task listing. If the newly added task is not updated, click the `Refresh` link after a few moments.
+![](images/ToDoList.JPG)
+5. Click on the `Charts' link to see the breakdown of tasks in a pie chart that was both created and downloaded by using the Excel REST API.
+
+![](images/Chart.JPG)
+
 
 ## Questions and comments
 
