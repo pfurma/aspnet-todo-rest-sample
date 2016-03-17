@@ -26,9 +26,9 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Controllers
             AuthHelper authHelper = new AuthHelper(authority, ConfigurationManager.AppSettings["ida:AppId"], ConfigurationManager.AppSettings["ida:AppSecret"], tokenCache);
             string accessToken = await authHelper.GetUserAccessToken(Url.Action("Index", "Home", null, Request.Url.Scheme));
 
-            await RESTAPIHelper.LoadWorkbook(accessToken);
+            await ExcelApiHelper.LoadWorkbook(accessToken);
 
-            return View(await RESTAPIHelper.GetToDoItems(accessToken));
+            return View(await ExcelApiHelper.GetToDoItems(accessToken));
         }
 
         // GET: ToDoList/Create
@@ -70,7 +70,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Controllers
                 AuthHelper authHelper = new AuthHelper(authority, ConfigurationManager.AppSettings["ida:AppId"], ConfigurationManager.AppSettings["ida:AppSecret"], tokenCache);
                 string accessToken = await authHelper.GetUserAccessToken(Url.Action("Index", "Home", null, Request.Url.Scheme));
 
-                await RESTAPIHelper.CreateToDoItem(
+                await ExcelApiHelper.CreateToDoItem(
                     accessToken,
                     collection["Title"],
                     collection["PriorityDD"],

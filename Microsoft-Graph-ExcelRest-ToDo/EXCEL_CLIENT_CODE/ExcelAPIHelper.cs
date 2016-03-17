@@ -17,7 +17,7 @@ using System.Web.Mvc;
 
 namespace Microsoft_Graph_ExcelRest_ToDo
 {
-    public class RESTAPIHelper
+    public class ExcelApiHelper
     {
         private static string restURLBase = "https://graph.microsoft.com/testexcel/me/drive/items/";
         private static string fileId = null;
@@ -28,7 +28,6 @@ namespace Microsoft_Graph_ExcelRest_ToDo
             {
                 var fileName = "ToDoList.xlsx";
                 var serviceEndpoint = "https://graph.microsoft.com/v1.0/me/drive/root/children";
-                //string fileId = null;
 
                 String absPath = HttpContext.Current.Server.MapPath("Assets/ToDo.xlsx");
                 HttpClient client = new HttpClient();
@@ -59,7 +58,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                 else
                 {
-                    Console.WriteLine("Could not get user files:" + filesResponse.StatusCode);
+                    //Handle exception
                 }
 
                 // We know that the file doesn't exist, so upload it and create the necessary worksheets, tables, and chart.
@@ -347,7 +346,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                 else
                 {
-                    Console.WriteLine("We could not create the file. The request returned this status code: " + response.StatusCode);
+                    //Handle exception
 
                 }
 
@@ -355,7 +354,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                //Handle exception
 
             }
         }
@@ -426,7 +425,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                     }
                     catch (FormatException f)
                     {
-                        Console.WriteLine(f.Message);
+                        //Handle exception
                     }
                 }
             }

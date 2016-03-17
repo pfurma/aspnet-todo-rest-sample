@@ -26,7 +26,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Controllers
             string accessToken = await authHelper.GetUserAccessToken(Url.Action("Index", "Home", null, Request.Url.Scheme));
 
 
-            return await RESTAPIHelper.getChartImage(accessToken);
+            return await ExcelApiHelper.getChartImage(accessToken);
         }
     }
 }
