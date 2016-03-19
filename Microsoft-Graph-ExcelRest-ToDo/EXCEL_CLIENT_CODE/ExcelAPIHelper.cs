@@ -58,13 +58,14 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                 else
                 {
-                    //Handle exception
+                    //Handle failed response
                 }
 
                 // We know that the file doesn't exist, so upload it and create the necessary worksheets, tables, and chart.
                 var excelFile = File.OpenRead(absPath);
                 byte[] contents = new byte[excelFile.Length];
-                excelFile.Read(contents, 0, (int)excelFile.Length); excelFile.Close();
+                excelFile.Read(contents, 0, (int)excelFile.Length);
+                excelFile.Close();
                 var contentStream = new MemoryStream(contents);
 
 
@@ -84,15 +85,17 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                 if (response.IsSuccessStatusCode)
                 {
+                    //Get the Id of the new file.
                     var responseContent = await response.Content.ReadAsStringAsync();
                     var parsedResponse = JObject.Parse(responseContent);
                     fileId = (string)parsedResponse["id"];
                     restURLBase = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook/worksheets('ToDoList')/";
 
+                    //Set up workbook and worksheet endpoints
                     var workbookEndpoint = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook";
+                    var worksheetsEndpoint = workbookEndpoint + "/worksheets";
 
-                    //Get session id
-
+                    //Get session id and add it to the HttpClient's default headers. This will make the changes appear more quickly.
                     var sessionJson = "{" +
                         "'saveChanges': true" +
                         "}";
@@ -106,53 +109,19 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                     client.DefaultRequestHeaders.Add("Workbook-Session-Id", sessionId);
 
+                    //Add ToDoList worksheet to the workbook
+                    await AddWorksheetToWorkbook("ToDoList", worksheetsEndpoint, client);
 
-                    var worksheetsEndpoint = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook/worksheets";
+                    //Add Summary worksheet to the workbook
+                    await AddWorksheetToWorkbook("Summary", worksheetsEndpoint, client);
 
-                    //Worksheets
-                    var toDoWorksheetJson = "{" +
-                                                "'name': 'ToDoList'," +
-                                                "}";
+                    //Add table to ToDoList worksheet
+                    await AddTableToWorksheet("ToDoList", "A1:H1", worksheetsEndpoint, client);
 
-                    var toDoWorksheetContentPostBody = new StringContent(toDoWorksheetJson);
-                    toDoWorksheetContentPostBody.Headers.Clear();
-                    toDoWorksheetContentPostBody.Headers.Add("Content-Type", "application/json");
-                    var toDoResponseMessage = await client.PostAsync(worksheetsEndpoint, toDoWorksheetContentPostBody);
-
-
-                    var summaryWorksheetJson = "{" +
-                            "'name': 'Summary'" +
-                            "}";
-
-                    var summaryWorksheetContentPostBody = new StringContent(summaryWorksheetJson);
-                    summaryWorksheetContentPostBody.Headers.Clear();
-                    summaryWorksheetContentPostBody.Headers.Add("Content-Type", "application/json");
-                    var summaryResponseMessage = await client.PostAsync(worksheetsEndpoint, summaryWorksheetContentPostBody);
-
-                    //ToDoList table in ToDoList worksheet
-                    var toDoListTableJson = "{" +
-                            "'address': 'A1:H1'," +
-                            "'hasHeaders': true" +
-                            "}";
-
-                    var toDoListTableContentPostBody = new StringContent(toDoListTableJson);
-                    toDoListTableContentPostBody.Headers.Clear();
-                    toDoListTableContentPostBody.Headers.Add("Content-Type", "application/json");
-                    var toDoListTableResponseMessage = await client.PostAsync(worksheetsEndpoint + "('ToDoList')/tables/$/add", toDoListTableContentPostBody);
-
-                    //New table in Summary worksheet
-                    var summaryTableJson = "{" +
-                            "'address': 'A1:B1'," +
-                            "'hasHeaders': true" +
-                            "}";
-
-                    var summaryTableContentPostBody = new StringContent(summaryTableJson);
-                    summaryTableContentPostBody.Headers.Clear();
-                    summaryTableContentPostBody.Headers.Add("Content-Type", "application/json");
-                    var summaryTableResponseMessage = await client.PostAsync(worksheetsEndpoint + "('Summary')/tables/$/add", summaryTableContentPostBody);
+                    //Add table too Summary worksheet
+                    await AddTableToWorksheet("Summary", "A1:B1", worksheetsEndpoint, client);
 
                     var patchMethod = new HttpMethod("PATCH");
-
 
                     //Rename Table1 in ToDoList worksheet to "ToDoList"
                     var toDoListTableNameJson = "{" +
@@ -162,115 +131,27 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                     var toDoListTableNamePatchBody = new StringContent(toDoListTableNameJson);
                     toDoListTableNamePatchBody.Headers.Clear();
                     toDoListTableNamePatchBody.Headers.Add("Content-Type", "application/json");
-
-
                     var toDoListRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('Table1')") { Content = toDoListTableNamePatchBody };
                     var toDoListTableNameResponseMessage = await client.SendAsync(toDoListRequestMessage);
 
 
-                    //Rename ToDoList columns
-                    var colToDoOneNameJson = "{" +
-                            "'values': [['Id'], [null]] " +
-                            "}";
+                    //Rename ToDoList columns 1-8
 
-                    var colToDoOneNamePatchBody = new StringContent(colToDoOneNameJson);
-                    colToDoOneNamePatchBody.Headers.Clear();
-                    colToDoOneNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoOneNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('1')") { Content = colToDoOneNamePatchBody };
-                    var colToDoOneNameResponseMessage = await client.SendAsync(colToDoOneNameRequestMessage);
+                    await RenameColumn("ToDoList", "ToDoList", "Id", "1", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Title", "2", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Priority", "3", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Status", "4", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "PercentComplete", "5", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "StartDate", "6", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "EndDate", "7", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Notes", "8", worksheetsEndpoint, client);
 
-                    var colToDoTwoNameJson = "{" +
-                            "'values': [['Title'], [null]] " +
-                            "}";
+                    //Rename Summary columns 1-2
+                    await RenameColumn("Summary", "2", "Status", "1", worksheetsEndpoint, client);
+                    await RenameColumn("Summary", "2", "Count", "2", worksheetsEndpoint, client);
 
-                    var colToDoTwoNamePatchBody = new StringContent(colToDoTwoNameJson);
-                    colToDoTwoNamePatchBody.Headers.Clear();
-                    colToDoTwoNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoTwoNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('2')") { Content = colToDoTwoNamePatchBody };
-                    var colToDoTwoNameResponseMessage = await client.SendAsync(colToDoTwoNameRequestMessage);
 
-                    var colToDoThreeNameJson = "{" +
-                            "'values': [['Priority'], [null]] " +
-                            "}";
-
-                    var colToDoThreeNamePatchBody = new StringContent(colToDoThreeNameJson);
-                    colToDoThreeNamePatchBody.Headers.Clear();
-                    colToDoThreeNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoThreeNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('3')") { Content = colToDoThreeNamePatchBody };
-                    var colToDoThreeNameResponseMessage = await client.SendAsync(colToDoThreeNameRequestMessage);
-
-                    var colToDoFourNameJson = "{" +
-                            "'values': [['Status'], [null]] " +
-                            "}";
-
-                    var colToDoFourNamePatchBody = new StringContent(colToDoFourNameJson);
-                    colToDoFourNamePatchBody.Headers.Clear();
-                    colToDoFourNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoFourNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('4')") { Content = colToDoFourNamePatchBody };
-                    var colToDoFourNameResponseMessage = await client.SendAsync(colToDoFourNameRequestMessage);
-
-                    var colToDoFiveNameJson = "{" +
-                            "'values': [['PercentComplete'], [null]] " +
-                            "}";
-
-                    var colToDoFiveNamePatchBody = new StringContent(colToDoFiveNameJson);
-                    colToDoFiveNamePatchBody.Headers.Clear();
-                    colToDoFiveNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoFiveNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('5')") { Content = colToDoFiveNamePatchBody };
-                    var colToDoFiveNameResponseMessage = await client.SendAsync(colToDoFiveNameRequestMessage);
-
-                    var colToDoSixNameJson = "{" +
-                            "'values': [['StartDate'], [null]] " +
-                            "}";
-
-                    var colToDoSixNamePatchBody = new StringContent(colToDoSixNameJson);
-                    colToDoSixNamePatchBody.Headers.Clear();
-                    colToDoSixNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoSixNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('6')") { Content = colToDoSixNamePatchBody };
-                    var colToDoSixNameResponseMessage = await client.SendAsync(colToDoSixNameRequestMessage);
-
-                    var colToDoSevenNameJson = "{" +
-                            "'values': [['EndDate'], [null]] " +
-                            "}";
-
-                    var colToDoSevenNamePatchBody = new StringContent(colToDoSevenNameJson);
-                    colToDoSevenNamePatchBody.Headers.Clear();
-                    colToDoSevenNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoSevenNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('7')") { Content = colToDoSevenNamePatchBody };
-                    var colToDoSevenNameResponseMessage = await client.SendAsync(colToDoSevenNameRequestMessage);
-
-                    var colToDoEightNameJson = "{" +
-                            "'values': [['Notes'], [null]] " +
-                            "}";
-
-                    var colToDoEightNamePatchBody = new StringContent(colToDoEightNameJson);
-                    colToDoEightNamePatchBody.Headers.Clear();
-                    colToDoEightNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colToDoEightNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('ToDoList')/Columns('8')") { Content = colToDoEightNamePatchBody };
-                    var colToDoEightNameResponseMessage = await client.SendAsync(colToDoEightNameRequestMessage);
-
-                    //Rename Summary columns
-                    var colSumOneNameJson = "{" +
-                            "'values': [['Status'], [null]] " +
-                            "}";
-
-                    var colSumOneNamePatchBody = new StringContent(colSumOneNameJson);
-                    colSumOneNamePatchBody.Headers.Clear();
-                    colSumOneNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colSumOneNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('Summary')/tables('2')/Columns('1')") { Content = colSumOneNamePatchBody };
-                    var colSumOneNameResponseMessage = await client.SendAsync(colSumOneNameRequestMessage);
-
-                    var colSumTwoNameJson = "{" +
-                            "'values': [['Count'], [null]] " +
-                            "}";
-
-                    var colSumTwoNamePatchBody = new StringContent(colSumTwoNameJson);
-                    colSumTwoNamePatchBody.Headers.Clear();
-                    colSumTwoNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var colSumTwoNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('Summary')/tables('2')/Columns('2')") { Content = colSumTwoNamePatchBody };
-                    var colSumTwoNameResponseMessage = await client.SendAsync(colSumTwoNameRequestMessage);
-
-                    //Set numberFormat to text for the two date fields
+                    //Set numberFormat to text for the two date fields in the ToDoList worksheet table.
 
                     var dateRangeJSON = "{" +
                         "'numberFormat': '@'" +
@@ -282,34 +163,11 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                     var dateResponseMessage = await client.SendAsync(dateRequestMessage);
 
 
-                    //Add rows to summary table
+                    //Add three rows to summary table
 
-                    var summaryTableNSRowJson = "{" +
-                            "'values': [['Not started', '=COUNTIF(ToDoList[PercentComplete],[@Status])']]" +
-                        "}";
-                    var summaryTableNSRowContentPostBody = new StringContent(summaryTableNSRowJson, System.Text.Encoding.UTF8);
-                    summaryTableNSRowContentPostBody.Headers.Clear();
-                    summaryTableNSRowContentPostBody.Headers.Add("Content-Type", "application/json");
-
-                    var summaryTableNSRowResponseMessage = await client.PostAsync(worksheetsEndpoint + "('Summary')/tables('2')/rows", summaryTableNSRowContentPostBody);
-
-                    var summaryTableNSRowTwoJson = "{" +
-                            "'values': [['In-progress', '=COUNTIF(ToDoList[PercentComplete],[@Status])']]" +
-                        "}";
-                    var summaryTableNSRowTwoContentPostBody = new StringContent(summaryTableNSRowTwoJson, System.Text.Encoding.UTF8);
-                    summaryTableNSRowTwoContentPostBody.Headers.Clear();
-                    summaryTableNSRowTwoContentPostBody.Headers.Add("Content-Type", "application/json");
-
-                    var summaryTableNSRowTwoResponseMessage = await client.PostAsync(worksheetsEndpoint + "('Summary')/tables('2')/rows", summaryTableNSRowTwoContentPostBody);
-
-                    var summaryTableNSRowThreeJson = "{" +
-                            "'values': [['Completed', '=COUNTIF(ToDoList[PercentComplete],[@Status])']]" +
-                        "}";
-                    var summaryTableNSRowThreeContentPostBody = new StringContent(summaryTableNSRowThreeJson, System.Text.Encoding.UTF8);
-                    summaryTableNSRowThreeContentPostBody.Headers.Clear();
-                    summaryTableNSRowThreeContentPostBody.Headers.Add("Content-Type", "application/json");
-
-                    var summaryTableNSRowThreeResponseMessage = await client.PostAsync(worksheetsEndpoint + "('Summary')/tables('2')/rows", summaryTableNSRowThreeContentPostBody);
+                    await AddRowToTable("Summary", "2", "Not started", worksheetsEndpoint, client);
+                    await AddRowToTable("Summary", "2", "In-progress", worksheetsEndpoint, client);
+                    await AddRowToTable("Summary", "2", "Completed", worksheetsEndpoint, client);
 
                     //Add chart to Summary worksheet
                     var chartJson = "{" +
@@ -358,6 +216,59 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
             }
         }
+
+        private static async Task AddWorksheetToWorkbook(string worksheetName, string worksheetsEndpoint, HttpClient client)
+        {
+            var worksheetJson = "{" +
+                            "'name': '" + worksheetName + "'," +
+                            "}";
+
+            var worksheetContentPostBody = new StringContent(worksheetJson);
+            worksheetContentPostBody.Headers.Clear();
+            worksheetContentPostBody.Headers.Add("Content-Type", "application/json");
+            var worksheetResponseMessage = await client.PostAsync(worksheetsEndpoint, worksheetContentPostBody);
+        }
+
+        private static async Task AddTableToWorksheet(string worksheetName, string tableRange, string worksheetsEndpoint, HttpClient client)
+        {
+            var tableJson = "{" +
+                    "'address': '" + tableRange + "'," +
+                    "'hasHeaders': true" +
+                    "}";
+
+            var tableContentPostBody = new StringContent(tableJson);
+            tableContentPostBody.Headers.Clear();
+            tableContentPostBody.Headers.Add("Content-Type", "application/json");
+            var tableResponseMessage = await client.PostAsync(worksheetsEndpoint + "('" + worksheetName + "')/tables/$/add", tableContentPostBody);
+
+        }
+
+        private static async Task RenameColumn(string worksheetName, string tableName, string colName, string colNumber, string worksheetsEndpoint, HttpClient client)
+        {
+            var patchMethod = new HttpMethod("PATCH");
+            var colNameJson = "{" +
+                    "'values': [['" + colName + "'], [null]] " +
+                    "}";
+
+            var colNamePatchBody = new StringContent(colNameJson);
+            colNamePatchBody.Headers.Clear();
+            colNamePatchBody.Headers.Add("Content-Type", "application/json");
+            var colNameRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('" + worksheetName + "')/tables('" + tableName + "')/Columns('" + colNumber + "')") { Content = colNamePatchBody };
+            var colNameResponseMessage = await client.SendAsync(colNameRequestMessage);
+
+        }
+
+        private static async Task AddRowToTable(string worksheetName, string tableName, string rowName, string worksheetsEndpoint, HttpClient client)
+        {
+            var summaryTableRowJson = "{" +
+                    "'values': [['" + rowName + "', '=COUNTIF(ToDoList[PercentComplete],[@Status])']]" +
+                "}";
+            var summaryTableRowContentPostBody = new StringContent(summaryTableRowJson, System.Text.Encoding.UTF8);
+            summaryTableRowContentPostBody.Headers.Clear();
+            summaryTableRowContentPostBody.Headers.Add("Content-Type", "application/json");
+            var summaryTableRowResponseMessage = await client.PostAsync(worksheetsEndpoint + "('" + worksheetName + "')/tables('" + tableName + "')/rows", summaryTableRowContentPostBody);
+        }
+
 
         public static async Task<List<ToDoItem>> GetToDoItems(string accessToken)
         {
@@ -564,6 +475,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
 
         }
+
     }
     public class RequestBodyHelper
     {
