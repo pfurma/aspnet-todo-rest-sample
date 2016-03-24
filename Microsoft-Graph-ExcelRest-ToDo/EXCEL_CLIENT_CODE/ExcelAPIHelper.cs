@@ -19,7 +19,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 {
     public class ExcelApiHelper
     {
-        private static string restURLBase = "https://graph.microsoft.com/testexcel/me/drive/items/";
+        private static string restURLBase = "https://graph.microsoft.com/beta/me/drive/items/";
         private static string fileId = null;
 
         public static async Task LoadWorkbook(string accessToken)
@@ -49,7 +49,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                         if (name.Contains("ToDoList.xlsx"))
                         {
                             fileId = (string)file["id"];
-                            restURLBase = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook/worksheets('ToDoList')/";
+                            restURLBase = "https://graph.microsoft.com/beta/me/drive/items/" + fileId + "/workbook/worksheets('ToDoList')/";
                             return;
                         }
                     }
@@ -89,10 +89,10 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                     var responseContent = await response.Content.ReadAsStringAsync();
                     var parsedResponse = JObject.Parse(responseContent);
                     fileId = (string)parsedResponse["id"];
-                    restURLBase = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook/worksheets('ToDoList')/";
+                    restURLBase = "https://graph.microsoft.com/beta/me/drive/items/" + fileId + "/workbook/worksheets('ToDoList')/";
 
                     //Set up workbook and worksheet endpoints
-                    var workbookEndpoint = "https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook";
+                    var workbookEndpoint = "https://graph.microsoft.com/beta/me/drive/items/" + fileId + "/workbook";
                     var worksheetsEndpoint = workbookEndpoint + "/worksheets";
 
                     //Get session id and add it to the HttpClient's default headers. This will make the changes appear more quickly.
@@ -428,7 +428,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
             FileContentResult returnValue = null;
             using (var client = new HttpClient())
             {
-                client.BaseAddress = new Uri("https://graph.microsoft.com/testexcel/me/drive/items/" + fileId + "/workbook/worksheets('Summary')/");
+                client.BaseAddress = new Uri("https://graph.microsoft.com/beta/me/drive/items/" + fileId + "/workbook/worksheets('Summary')/");
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
