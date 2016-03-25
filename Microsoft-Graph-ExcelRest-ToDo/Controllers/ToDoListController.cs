@@ -36,7 +36,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Controllers
         {
             var priorityList = new SelectList(new[]
                                           {
-                                              new {ID="1",Name="High"},
+                                              new{ID="1",Name="High"},
                                               new{ID="2",Name="Normal"},
                                               new{ID="3",Name="Low"},
                                           },
@@ -45,7 +45,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Controllers
 
             var statusList = new SelectList(new[]
                               {
-                                              new {ID="1",Name="Not started"},
+                                              new{ID="1",Name="Not started"},
                                               new{ID="2",Name="In-progress"},
                                               new{ID="3",Name="Completed"},
                                           },

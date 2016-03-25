@@ -276,7 +276,6 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
             using (var client = new HttpClient())
             {
-                //client.BaseAddress = new Uri(restURLBase);
                 client.DefaultRequestHeaders.Accept.Clear();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -310,7 +309,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                 //The string array of row values
                 JToken values = element.Value;
 
-                //linq query to get rows from results
+                //LINQ query to get rows from results
                 var stringValues = from stringValue in values select stringValue;
                 //rows
                 foreach (JToken thing in stringValues)
@@ -357,7 +356,6 @@ namespace Microsoft_Graph_ExcelRest_ToDo
         {
             ToDoItem newTodoItem = new ToDoItem();
 
-            //int id = new Random().Next(1, 1000);
             string id = Guid.NewGuid().ToString();
 
             var priorityString = "";
@@ -395,7 +393,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
                 using (var request = new HttpRequestMessage(HttpMethod.Post, restURLBase))
                 {
-                    //Create 2 dimensional array to hold the row values to be serialized into json
+                    //Create two-dimensional array to hold the row values to be serialized into json
                     object[,] valuesArray = new object[1, 8] { { id, title, percentComplete.ToString(), priorityString, statusString, startDate, endDate, notes } };
 
                     //Create a container for the request body to be serialized
@@ -435,7 +433,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                 string chartId = null;
 
 
-                //Take the first chart off the charts collection, since we know there is only one
+                //Take the first chart off the charts collection, because we know there is only one
                 HttpResponseMessage chartsResponse = await client.GetAsync("charts");
 
                 var responseContent = await chartsResponse.Content.ReadAsStringAsync();
