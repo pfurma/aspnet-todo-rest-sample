@@ -1,4 +1,4 @@
-# Microsoft Graph’s Excel REST API ASP.NET to-do list sample
+# Microsoft Graph Excel REST API ASP.NET to-do list sample
 
 This sample shows how to read and write into an Excel document stored in your OneDrive for Business account by using the Excel REST APIs.
 
