@@ -33,7 +33,7 @@ To use the Microsoft Graph Excel REST API ASP.NET to-do list sample, you need th
 ## Run the app
 
 1. Press F5 to build and debug. Run the solution and sign in with your organizational account. The application launches on your local host and shows the starter page. 
-![](images/ExcelApp.jpg)
+![Starter page](images/ExcelApp.jpg)
      > Note: Copy and paste the start page URL address **http://localhost:21942/home/index** to a different browser if you get the following error during sign in:**AADSTS70001: Application with identifier ad533dcf-ccad-469a-abed-acd1c8cc0d7d was not found in the directory**.
 2. Choose the `Click here to sign in` button in the middle of the page or the `Sign in` link at the top right of the page and authenticate with your Office 365 account. 
 3. Select the `ToDoList` link from the top menu bar.
@@ -41,10 +41,10 @@ To use the Microsoft Graph Excel REST API ASP.NET to-do list sample, you need th
 5. If you're running the application for the first time, you can verify that the application uploaded and configured the `ToDoList.xlsx` file by navigating to **https://yourtenant.sharepoint.com**, clicking on the App Launcher "Waffle" at the top left of the page, and then choosing the OneDrive application. You'll see a file named **ToDoList.xlsx** in the root directory, and when you click on the file, you'll see worksheets named **ToDoList** and **Summary**. The **ToDoList** worksheet contains a table that lists each "to-do" item, and the **Summary** worksheet contains a summary table and a chart.
 6. Select the `Add New' link to add a new task. Fill in the form with the task details.
 7. After you add a task, the app shows the updated task listing. If the newly added task isn't updated, choose the `Refresh` link after a few moments.
-![](images/ToDoList.jpg)
+![Updated task listing](images/ToDoList.jpg)
 8. Choose the `Charts' link to see the breakdown of tasks in a pie chart that was created and downloaded by using the Excel REST API.
 
-![](images/Chart.jpg)
+![Breakdown of tasks in a pie chart](images/Chart.jpg)
 
 
 ## Questions and comments
