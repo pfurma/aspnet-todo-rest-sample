@@ -137,14 +137,14 @@ namespace Microsoft_Graph_ExcelRest_ToDo
 
                     //Rename ToDoList columns 1-8
 
-                    await RenameColumn("ToDoList", "ToDoList", "Id", "1", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "Title", "2", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "Priority", "3", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "Status", "4", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "PercentComplete", "5", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "StartDate", "6", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "EndDate", "7", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "ToDoList", "Notes", "8", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "Id", "1", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "Title", "2", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "Priority", "3", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "Status", "4", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "PercentComplete", "5", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "StartDate", "6", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "EndDate", "7", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "1", "Notes", "8", worksheetsEndpoint, client);
 
                     //Rename Summary columns 1-2
                     await RenameColumn("Summary", "2", "Status", "1", worksheetsEndpoint, client);
