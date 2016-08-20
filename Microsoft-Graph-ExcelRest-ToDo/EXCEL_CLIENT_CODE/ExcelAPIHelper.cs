@@ -131,20 +131,20 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                     var toDoListTableNamePatchBody = new StringContent(toDoListTableNameJson);
                     toDoListTableNamePatchBody.Headers.Clear();
                     toDoListTableNamePatchBody.Headers.Add("Content-Type", "application/json");
-                    var toDoListRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('Table1')") { Content = toDoListTableNamePatchBody };
+                    var toDoListRequestMessage = new HttpRequestMessage(patchMethod, worksheetsEndpoint + "('ToDoList')/tables('1')") { Content = toDoListTableNamePatchBody };
                     var toDoListTableNameResponseMessage = await client.SendAsync(toDoListRequestMessage);
 
 
                     //Rename ToDoList columns 1-8
 
-                    await RenameColumn("ToDoList", "1", "Id", "1", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "Title", "2", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "Priority", "3", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "Status", "4", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "PercentComplete", "5", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "StartDate", "6", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "EndDate", "7", worksheetsEndpoint, client);
-                    await RenameColumn("ToDoList", "1", "Notes", "8", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Id", "1", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Title", "2", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Priority", "3", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Status", "4", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "PercentComplete", "5", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "StartDate", "6", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "EndDate", "7", worksheetsEndpoint, client);
+                    await RenameColumn("ToDoList", "ToDoList", "Notes", "8", worksheetsEndpoint, client);
 
                     //Rename Summary columns 1-2
                     await RenameColumn("Summary", "2", "Status", "1", worksheetsEndpoint, client);
@@ -261,7 +261,7 @@ namespace Microsoft_Graph_ExcelRest_ToDo
         private static async Task AddRowToTable(string worksheetName, string tableName, string rowName, string worksheetsEndpoint, HttpClient client)
         {
             var summaryTableRowJson = "{" +
-                    "'values': [['" + rowName + "', '=COUNTIF(ToDoList[PercentComplete],[@Status])']]" +
+                    "'values': [['" + rowName + "', '=COUNTIF(ToDoList[Status],[@Status])']]" +
                 "}";
             var summaryTableRowContentPostBody = new StringContent(summaryTableRowJson, System.Text.Encoding.UTF8);
             summaryTableRowContentPostBody.Headers.Clear();
@@ -325,9 +325,9 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                         ToDoItem todoItem = new ToDoItem(
                              stringArray[0],
                              stringArray[1],
+                             stringArray[2],
                              stringArray[3],
                              stringArray[4],
-                             stringArray[2],
                              stringArray[5],
                              stringArray[6],
                         stringArray[7]);
@@ -394,7 +394,8 @@ namespace Microsoft_Graph_ExcelRest_ToDo
                 using (var request = new HttpRequestMessage(HttpMethod.Post, restURLBase))
                 {
                     //Create two-dimensional array to hold the row values to be serialized into json
-                    object[,] valuesArray = new object[1, 8] { { id, title, percentComplete.ToString(), priorityString, statusString, startDate, endDate, notes } };
+//                    object[,] valuesArray = new object[1, 8] { { id, title, percentComplete.ToString(), priorityString, statusString, startDate, endDate, notes } };
+                    object[,] valuesArray = new object[1, 8] { { id, title, priorityString, statusString, percentComplete.ToString(), startDate, endDate, notes } };
 
                     //Create a container for the request body to be serialized
                     RequestBodyHelper requestBodyHelper = new RequestBodyHelper();

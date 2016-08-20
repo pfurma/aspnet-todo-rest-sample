@@ -19,10 +19,10 @@ namespace Microsoft_Graph_ExcelRest_ToDo.Models
         public string Title { get; set; }
 
         [Required]
-        public string Status { get; set; }
+        public string Priority { get; set; }
 
         [Required]
-        public string Priority { get; set; }
+        public string Status { get; set; }
 
         [Required]
         public string PercentComplete { get; set; }
